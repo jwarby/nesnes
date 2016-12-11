@@ -24,8 +24,8 @@ VideoOutput.prototype = {
 	run: function() {
 		var self = this;
 
-		requestAnimationFrame(function flush() {
-			requestAnimationFrame( flush );
+		setTimeout(function flush() {
+			setTimeout( flush );
 
 			self.renderer.renderFrame( self );
 		});		

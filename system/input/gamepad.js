@@ -88,14 +88,14 @@ var Gamepad = ControllerHandler.extend({
 		this._connected = true;
 
 		var input = this;
-		requestAnimationFrame(function listen() {
+		setTimeout(function listen() {
 			var gamepad = navigator.getGamepads()[ input.config.index ];
 
 			if ( gamepad && gamepad.connected ) {
 				input.handleButtons(gamepad);
 				input.handleAxes(gamepad);
 
-				requestAnimationFrame(listen);
+				setTimeout(listen);
 			} else {
 				// gamepad no longer connected
 				input.stopListening();
