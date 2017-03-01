@@ -1,6 +1,7 @@
 function CPU( system ) {
 	"use strict";
 
+	var nmiDisabled = false
 	var address,
 		writeToA, op,
 		cyclesBurnt = 0,
@@ -50,6 +51,7 @@ function CPU( system ) {
 	 * Handle an NMI interrupt.
 	 */
 	function doNMI() {
+		if (nmiDisabled) return
 		interrupt( VECTOR_NMI );
 		nmiRequested = false;
 	}
@@ -62,7 +64,16 @@ function CPU( system ) {
 		irqRequested = false;
 	}
 
+	function disableNMI() {
+		nmiDisabled = true
+	}
+
+	function enableNMI() {
+		nmiDisabled = false
+	}
+
 	function interrupt( vector ) {
+		if (nmiDisabled) return
 		// push PC and P onto stack
 		push( (PC & HIGH) >> 8 );
 		push( PC & LOW );
@@ -100,15 +111,15 @@ function CPU( system ) {
 
 		op = peek( PC );
 
-		/*console.log(
-			PC.toString(16).toUpperCase() +
-			" " + op.toString(16).toUpperCase() +
-			" A:" + A.toString(16) +
-			" X:" + X.toString(16) +
-			" Y:" + Y.toString(16) +
-			" P:" + P.toString(16) +
-			" SP:" + SP.toString(16)
-		);*/
+		// console.log(
+		// 	PC.toString(16).toUpperCase() +
+		// 	" " + op.toString(16).toUpperCase() +
+		// 	" A:" + A.toString(16) +
+		// 	" X:" + X.toString(16) +
+		// 	" Y:" + Y.toString(16) +
+		// 	" P:" + P.toString(16) +
+		// 	" SP:" + SP.toString(16)
+		// );
 
 		execute( op );
 
@@ -1059,7 +1070,9 @@ function CPU( system ) {
 	 * Opcodes: 0x69, 0x65, 0x75, 0x6d, 0x7d, 0x79, 0x61, 0x71
 	 */
 	function ADC() {
-		doADC( read() );
+		var value = read()
+		// console.log('ADC', '0x' + value.toString(16))
+		doADC(value);
 	}
 
 	/**
@@ -1117,6 +1130,7 @@ function CPU( system ) {
 	 * Opcodes: 0x90
 	 */
 	function BCC() {
+		// console.log('BCC')
 		branch( !flagC );
 	}
 
@@ -1125,6 +1139,7 @@ function CPU( system ) {
 	 * Opcodes: 0xf0
 	 */
 	function BEQ() {
+		// console.log('BEQ')
 		branch( flagZ );
 	}
 
@@ -1133,6 +1148,7 @@ function CPU( system ) {
 	 * Opcodes: 0xd0
 	 */
 	function BNE() {
+		// console.log('BNE')
 		branch( !flagZ );
 	}
 
@@ -1234,6 +1250,7 @@ function CPU( system ) {
 	 * Opcodes: 0x18
 	 */
 	function CLC() {
+		// console.log('CLC')
 		flagC = 0;
 	}
 
@@ -1296,6 +1313,7 @@ function CPU( system ) {
 	function xCMP( value ) {
 		var readValue = read(),
 			t = ( value - readValue ) & 0xff;
+		// console.log('CMP', '0x' + readValue.toString(16))
 		flagN = ( t & 0x80 ) && 1;
 		flagC = +( value >= readValue );
 		flagZ = +( t === 0 );
@@ -1396,6 +1414,7 @@ function CPU( system ) {
 	 */
 	function LDA() {
 		var value = read();
+		// console.log('LDA', '0x' + value.toString(16))
 
 		writeA( value );
 		flagN = ( A & 0x80 ) && 1;
@@ -1536,6 +1555,7 @@ function CPU( system ) {
 	 * Opcodes: 0x60
 	 */
 	function RTS() {
+		// console.log('RTS')
 		var low, high;
 
 		low = pop();
@@ -1759,6 +1779,20 @@ function CPU( system ) {
 	this.getCycles = getCycles;
 	this.resetCycles = resetCycles;
 	this.execute = execute;
+
+	this.A = value => value != null ? (A = value) : A
+	this.X = value => value != null ? (X = value) : X
+	this.Y = value => value != null ? (Y = value) : Y
+	this.PC = value => value != null ? (PC = value) : PC
+
+	this.disableNMI = disableNMI
+	this.enableNMI = enableNMI
+
+	this.JMP = JMP
+
+	this.nextOpcode = () => {
+		return peek(PC)
+	}
 }
 
 module.exports = CPU;
