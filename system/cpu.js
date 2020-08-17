@@ -121,7 +121,7 @@ function CPU( system ) {
 		// 	" SP:" + SP.toString(16)
 		// );
 
-		execute( op );
+		this.execute( op );
 
 		if ( nmiRequested ) {
 			doNMI();
@@ -1081,7 +1081,7 @@ function CPU( system ) {
 	 */
 	function doADC( value ) {
 		var t = A + value + flagC;
-			
+
 		flagV = !!((A ^ t) & (value ^ t) & 0x80) && 1;
 		flagN = !!( t & 0x80 );
 		flagC = ( t > 255 );
@@ -1770,7 +1770,7 @@ function CPU( system ) {
 
 	this.burn = burn;
 	this.reset = reset;
-	this.tick = tick;
+	this.tick = tick.bind(this);
 	this.setPC = setPC;
 
 	this.requestNMI = requestNMI;
