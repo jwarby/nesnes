@@ -122,7 +122,7 @@ function CPU(system) {
     // 	" SP:" + SP.toString(16)
     // );
 
-    execute(op);
+    this.execute(op);
 
     if (nmiRequested) {
       doNMI();
