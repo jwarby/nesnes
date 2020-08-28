@@ -1770,7 +1770,7 @@ function CPU(system) {
 
   this.burn = burn;
   this.reset = reset;
-  this.tick = tick;
+  this.tick = tick.bind(this);
   this.setPC = setPC;
 
   this.requestNMI = requestNMI;
