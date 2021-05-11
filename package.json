@@ -13,7 +13,7 @@
     "url": "https://github.com/koenkivits/nesnes.git"
   },
   "scripts": {
-    "prepublish": "make"
+    "prepare": "make"
   },
   "browser": {
     "./utils.js": "./browser/utils.js"
